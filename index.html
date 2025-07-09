@@ -1,1 +1,134 @@
 
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zen Notes Dapp</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #0d1117, #161b22);
+      color: #c9d1d9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    textarea, button {
+      width: 100%;
+      max-width: 500px;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+    textarea {
+      resize: none;
+    }
+    button {
+      background-color: #238636;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #2ea043;
+    }
+    button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+    .note-list {
+      margin-top: 2rem;
+      max-width: 500px;
+      width: 100%;
+      background: #1c2128;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    .note {
+      border-bottom: 1px solid #30363d;
+      padding: 0.75rem 0;
+    }
+    .note:last-child {
+      border-bottom: none;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    h3 {
+      margin-bottom: 1rem;
+      color: #58a6ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 Zen Notes</h1>
+  <p style="max-width: 500px; text-align: center; margin-bottom: 1rem; color: #8b949e;">
+    Share your thoughts, ideas, or motivation with the ZenChain community. Each note is tied to your wallet and shows the power of real human connection in Web3.
+  </p>
+  <button id="connect">🔗 Connect Wallet</button>
+  <form id="noteForm">
+    <textarea id="noteInput" rows="4" placeholder="Write your note here (max 200 chars)" maxlength="200"></textarea>
+    <button type="submit" id="submitNote" disabled>Submit Note 📨</button>
+  </form>
+  <div class="note-list" id="noteList">
+    <h3>📜 Recent Notes</h3>
+    <div id="notes"></div>
+  </div>  <script>
+    let userAddress = "";
+    const connectBtn = document.getElementById("connect");
+    const submitBtn = document.getElementById("submitNote");
+    const noteForm = document.getElementById("noteForm");
+    const noteInput = document.getElementById("noteInput");
+    const notesDiv = document.getElementById("notes");
+
+    const dummyNotes = [
+      { address: "0xAbc...123", note: "Stay focused and consistent!" },
+      { address: "0xDef...456", note: "ZenChain to the moon 🚀" },
+      { address: "0x789...xyz", note: "Never stop building. #Web3 💻" }
+    ];
+
+    function renderNotes() {
+      notesDiv.innerHTML = dummyNotes.map(n => `
+        <div class="note">
+          <strong>${n.address}</strong><br />
+          <span>${n.note}</span>
+        </div>`
+      ).join("");
+    }
+
+    connectBtn.onclick = async () => {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          userAddress = accounts[0];
+          connectBtn.innerText = `✅ Connected: ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+          submitBtn.disabled = false;
+        } catch (error) {
+          console.error("User denied wallet connection");
+        }
+      } else {
+        alert("Please install MetaMask to use this Dapp.");
+      }
+    };
+
+    noteForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const note = noteInput.value.trim();
+      if (note && userAddress) {
+        dummyNotes.unshift({ address: `${userAddress.slice(0,6)}...${userAddress.slice(-4)}`, note });
+        noteInput.value = "";
+        renderNotes();
+      }
+    };
+
+    renderNotes();
+  </script></body>
+</html>
